@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface RegionRepository extends MongoRepository<Region, String> {
     Optional<Region> findByName(String name);
+
+    Optional<Region> findByRegionId(String regionId);
 }

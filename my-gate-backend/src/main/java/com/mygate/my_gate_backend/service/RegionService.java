@@ -12,11 +12,14 @@ import java.util.Optional;
 @Service
 public class RegionService {
 
-    @Autowired
-    private RegionRepository regionRepository;
+    private final RegionRepository regionRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    public RegionService(RegionRepository regionRepository, MongoTemplate mongoTemplate) {
+        this.regionRepository = regionRepository;
+        this.mongoTemplate = mongoTemplate;
+    }
 
     public List<Region> getAllRegions() {
         return regionRepository.findAll();
@@ -30,26 +33,35 @@ public class RegionService {
         return regionRepository.findById(id).orElse(null);
     }
 
-    private String generateRegionId() {
-        return "REG" + (regionRepository.count()+ 1);
+    public Optional<Region> getRegionByName(String name) {
+        return regionRepository.findByName(name);
     }
+
+    public Optional<Region> findByRegionID(String regionID) { return regionRepository.findByRegionId(regionID);}
 
     public Region createRegion(String regionName) {
         Region region = new Region();
-        String regionId = generateRegionId();
+        List<Region> regions = regionRepository.findAll();
+        int maxId = 0;
+        for (Region reg : regions) {
+            String regionId = reg.getRegionId();
+            String[] parts = regionId.split("REG");
+            int id = Integer.parseInt(parts[1]);
+            if (id > maxId) {
+                maxId = id;
+            }
+        }
+        String regionId = "REG" + (maxId + 1);
+
 
         region.setName(regionName);
-        region.setRegionID(regionId);
+        region.setRegionId(regionId);
 
         Region savedRegion = regionRepository.save(region);
 
-        mongoTemplate.createCollection(regionId);
+        mongoTemplate.createCollection(regionId+"_society");
 
         return savedRegion;
     }
 
-
-    public Optional<Region> getRegionByName(String name) {
-        return regionRepository.findByName(name);
-    }
 }

@@ -20,17 +20,17 @@ public class JwtUtil {
 
     public String generateToken(String email, Set<UserRole> userRoleSet) {
         try {
-            List<Map<String, String>> rolesWithReferences = RoleUtil.sortRoles(userRoleSet).stream()
+            List<Map<String, String>> rolesWithReferences = SecurityUtil.sortRoles(userRoleSet).stream()
                     .map(userRole -> {
                         Map<String, String> roleMap = new HashMap<>();
                         roleMap.put("role", userRole.getRolesEnum().name());
-                        roleMap.put("reference_id", userRole.getReferenceId());
+                        roleMap.put("referenceId", userRole.getReferenceId());
                         return roleMap;
                     })
                     .toList();
             return Jwts.builder()
                     .setSubject(email)
-                    .claim("roles", rolesWithReferences) // Store as a list of role-reference objects
+                    .claim("roles", rolesWithReferences)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration * 1000))
                     .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -65,7 +65,7 @@ public class JwtUtil {
 
     public List<Map<String, String>> getRolesFromToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token)
-                .getBody().get("roles", List.class); // Retrieve list of role-reference objects
+                .getBody().get("roles", List.class);
     }
 
 }

@@ -16,4 +16,8 @@ public class CustomGrantedAuthority implements GrantedAuthority {
     public String getAuthority() {
         return role;
     }
+
+    public String getReferenceId() {
+        return referenceId;
+    }
 }

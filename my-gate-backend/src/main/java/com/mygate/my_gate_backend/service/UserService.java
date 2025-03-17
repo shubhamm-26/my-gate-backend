@@ -16,8 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class UserService implements UserDetailsService {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public User addUser(User user) {
         return userRepository.save(user);
@@ -44,10 +48,21 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    public User addRoleToUser(String id, UserRole userRole) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + id));
+    public void addRole(String userId, UserRole userRole) {
+        String role = userRole.getRolesEnum().name();
+        String referenceId = userRole.getReferenceId();
+        if (userId == null || role == null || referenceId == null) {
+            throw new IllegalArgumentException("User ID and Role are required.");
+        }
+
+        String[] ids = referenceId.split("_");
+        String regionId = ids[0];
+        String societyId = (ids.length > 1) ? ids[1] : null;
+        String flatId = (ids.length > 2) ? ids[2] : null;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userId));
         user.getUserRolesSet().add(userRole);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 }

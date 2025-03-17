@@ -3,11 +3,10 @@ package com.mygate.my_gate_backend.controller;
 import com.mygate.my_gate_backend.model.Region;
 import com.mygate.my_gate_backend.service.RegionService;
 import com.mygate.my_gate_backend.util.CustomGrantedAuthority;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,27 +18,16 @@ import java.util.Optional;
 @RequestMapping("/region")
 public class RegionController {
 
+    private final RegionService regionService;
+
     @Autowired
-    private RegionService regionService;
+    public RegionController(RegionService regionService) {
+        this.regionService = regionService;
+    }
 
-    @PostMapping("/addRegion")
+    @PostMapping()
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> addRegion(@RequestBody Map<String, String> requestBody) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Authentication: " + authentication);
-        boolean isSuperAdmin = authentication.getAuthorities().stream()
-                .anyMatch (auth -> auth instanceof CustomGrantedAuthority customAuth
-                        && customAuth.getAuthority().equals("SUPER_ADMIN"));
-
-        if (!isSuperAdmin) {
-            return ResponseEntity.status(403).body("Access Denied: Only Super Admin can add a region.");
-        }
-
-        authentication.getAuthorities().forEach(auth -> {
-            if (auth instanceof CustomGrantedAuthority customAuth) {
-                System.out.println("Role: " + customAuth.getAuthority() + ", ReferenceID: " + customAuth.getReferenceId());
-            }
-        });
-
         String regionName = requestBody.get("name");
 
         if (regionName == null || regionName.isEmpty()) {
@@ -54,4 +42,5 @@ public class RegionController {
         Region savedRegion = regionService.createRegion(regionName);
         return ResponseEntity.ok(savedRegion);
     }
+
 }

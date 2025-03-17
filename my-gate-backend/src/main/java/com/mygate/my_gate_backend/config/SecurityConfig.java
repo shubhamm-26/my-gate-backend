@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -28,8 +30,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/user/**").hasAnyAuthority(RolesEnum.SUPER_ADMIN.name())
-                        .requestMatchers("/region/**").permitAll()
-                        .requestMatchers("/region/addRegion").hasAuthority(RolesEnum.SUPER_ADMIN.name())
+                        .requestMatchers("/society/**").hasAnyAuthority(RolesEnum.SUPER_ADMIN.name(), RolesEnum.REGION_ADMIN.name(),RolesEnum.SOC_ADMIN.name())
+                        .requestMatchers("/region/**").hasAnyAuthority(RolesEnum.SUPER_ADMIN.name(),RolesEnum.REGION_ADMIN.name())
+                        .requestMatchers("/flat/**").hasAnyAuthority(RolesEnum.SUPER_ADMIN.name(),RolesEnum.REGION_ADMIN.name(),RolesEnum.SOC_ADMIN.name())
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
