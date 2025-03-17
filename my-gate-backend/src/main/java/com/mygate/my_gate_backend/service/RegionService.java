@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RegionService {
@@ -21,16 +23,12 @@ public class RegionService {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Region> getAllRegions() {
-        return regionRepository.findAll();
+    public Optional<List<Region>> getAllRegions() {
+        return Optional.of(regionRepository.findAll());
     }
 
-    public Region saveRegion(Region region) {
-        return regionRepository.save(region);
-    }
-
-    public Region getRegionById(String id) {
-        return regionRepository.findById(id).orElse(null);
+    public Optional<Region> getRegionById(String id) {
+        return regionRepository.findById(id);
     }
 
     public Optional<Region> getRegionByName(String name) {
@@ -62,6 +60,34 @@ public class RegionService {
         mongoTemplate.createCollection(regionId+"_society");
 
         return savedRegion;
+    }
+
+    public Optional<Region> updateRegion(String id, String name) {
+        Optional<Region> regionOptional = regionRepository.findById(id);
+        if (regionOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        Region region = regionOptional.get();
+        region.setName(name);
+        return Optional.of(regionRepository.save(region));
+    }
+
+    public void deleteRegion(String id) {
+        Optional<Region> regionOptional = regionRepository.findById(id);
+        if (regionOptional.isEmpty()) {
+            throw new IllegalArgumentException("Region with id '" + id + "' does not exist.");
+        }else{
+            Region region = regionOptional.get();
+            String regionId = region.getRegionId();
+            Set<String> collections = mongoTemplate.getCollectionNames().stream()
+                    .filter(name -> name.startsWith(regionId))
+                    .collect(Collectors.toSet());
+
+            collections.forEach(
+                    mongoTemplate::dropCollection
+            );
+            regionRepository.deleteById(id);
+        }
     }
 
 }

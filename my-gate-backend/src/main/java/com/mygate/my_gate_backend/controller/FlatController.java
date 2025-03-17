@@ -11,9 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import static com.mygate.my_gate_backend.util.SecurityUtil.hasAuthorityWithReference;
 
@@ -29,6 +27,7 @@ public class FlatController {
     }
 
     @PostMapping()
+    @PreAuthorize("hasAuthority('SUPER_ADMIN') || hasAuthority('REGION_ADMIN') || hasAuthority('SOC_ADMIN')")
     public ResponseEntity<?> addFlat(@RequestBody FlatRequest flatRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String regionId = flatRequest.getRegionId();
@@ -47,6 +46,16 @@ public class FlatController {
             return ResponseEntity.ok().body("Flat added successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding flat: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{regionId}/{societyId}")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN') || hasAuthority('REGION_ADMIN') || hasAuthority('SOC_ADMIN')")
+    public ResponseEntity<?> getAllFlats(@PathVariable String regionId, @PathVariable String societyId) {
+        try{
+            return ResponseEntity.ok(flatService.getAllFlats(regionId,societyId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching flats: " + e.getMessage());
         }
     }
 

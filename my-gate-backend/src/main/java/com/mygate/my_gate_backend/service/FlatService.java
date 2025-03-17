@@ -79,7 +79,11 @@ public class FlatService {
     }
 
     public List<Flat> getAllFlats(String regionId,String societyId){
+        Optional<Society> societyOptional = societyService.getSocietyBySocId(regionId, societyId);
+        if(societyOptional.isEmpty()){
+            throw new IllegalArgumentException("Society with ID " + societyId + " not found in region " + regionId);
+        }
         String collectionName = regionId + "_" + societyId;
-        return mongoTemplate.findAll(Flat.class,collectionName);
+        return mongoTemplate.findAll(Flat.class, collectionName);
     }
 }

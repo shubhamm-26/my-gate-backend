@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class SocietyService {
@@ -62,9 +64,40 @@ public class SocietyService {
     }
 
     public Optional<Society> getSocietyBySocId(String regionId, String societyId) {
+        Optional<Region> regionOptional = regionRepository.findByRegionId(regionId);
+        if (regionOptional.isEmpty()) {
+            throw new IllegalArgumentException("Region ID '" + regionId + "' does not exist.");
+        }
         Query query = new Query().addCriteria(Criteria.where("societyId").is(societyId));
-        return Optional.ofNullable(mongoTemplate.findOne(query, Society.class, regionId+"_society"));
+        Society society = mongoTemplate.findOne(query, Society.class, regionId+"_society");
+        return Optional.ofNullable(society);
     }
 
+    public Optional<Society> updateSociety(String regionId,Society society){
+        Query query = new Query().addCriteria(Criteria.where("societyId").is(society.getSocietyId()));
+        Society existingSociety = mongoTemplate.findOne(query, Society.class, regionId+"_society");
+        if(existingSociety == null){
+            return Optional.empty();
+        }
+        existingSociety.setName(society.getName());
+        existingSociety.setAddress(society.getAddress());
+        mongoTemplate.save(existingSociety, regionId+"_society");
+        return Optional.of(existingSociety);
+    }
+
+    public void deleteSociety(String regionId, String societyId){
+        Optional<Society> societyOptional = getSocietyBySocId(regionId, societyId);
+        if(societyOptional.isEmpty()){
+            throw new IllegalArgumentException("Society ID '" + societyId + "' does not exist.");
+        }
+        Set<String> collections = mongoTemplate.getCollectionNames().stream()
+                .filter(name->name.contains(societyId))
+                .collect(Collectors.toSet());
+
+        collections.forEach(mongoTemplate::dropCollection);
+
+        Query query = new Query().addCriteria(Criteria.where("societyId").is(societyId));
+        mongoTemplate.remove(query, Society.class, regionId+"_society");
+    }
 
 }
