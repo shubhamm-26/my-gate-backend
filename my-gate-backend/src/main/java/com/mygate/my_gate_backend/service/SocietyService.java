@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 @Service
 public class SocietyService {
 
-    private MongoTemplate mongoTemplate;
-    private RegionRepository regionRepository;
+    private final MongoTemplate mongoTemplate;
+    private final RegionRepository regionRepository;
 
     @Autowired
     public SocietyService(MongoTemplate mongoTemplate, RegionRepository regionRepository) {
@@ -99,5 +99,4 @@ public class SocietyService {
         Query query = new Query().addCriteria(Criteria.where("societyId").is(societyId));
         mongoTemplate.remove(query, Society.class, regionId+"_society");
     }
-
 }

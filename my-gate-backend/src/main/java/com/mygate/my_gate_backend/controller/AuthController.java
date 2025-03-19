@@ -3,7 +3,6 @@ package com.mygate.my_gate_backend.controller;
 
 import com.mygate.my_gate_backend.model.User;
 import com.mygate.my_gate_backend.model.UserRole;
-import com.mygate.my_gate_backend.model.enums.RolesEnum;
 import com.mygate.my_gate_backend.service.UserService;
 import com.mygate.my_gate_backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-//import jwtUtil
-import com.mygate.my_gate_backend.util.JwtUtil;
 
 import java.util.*;
 
@@ -51,14 +46,14 @@ public class AuthController {
             Set<UserRole> rolesSet = new HashSet<>();
             if (user.getEmail().equals("superadmin@mygate.com")) {
                 UserRole userRole = new UserRole();
-                userRole.setRolesEnum(RolesEnum.SUPER_ADMIN);
+                userRole.setRole("SUPER_ADMIN");
                 userRole.setReferenceId(null);
                 rolesSet.add(userRole);
             }
             user.setUserRolesSet(rolesSet);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userService.addUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body("User added successfully.");
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while processing your request: " + e.getMessage());

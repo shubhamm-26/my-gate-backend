@@ -6,6 +6,5 @@ import lombok.Data;
 @Data
 public class SocietyRequest {
     private String name;
-    private String regionId;
     private String address;
 }

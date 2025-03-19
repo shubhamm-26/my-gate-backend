@@ -23,7 +23,7 @@ public class RegionController {
     }
 
     @PostMapping()
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("@customPermissionEvaluator.hasPermission(authentication, 'SUPER_ADMIN', 'REGION_ADD')")
     public ResponseEntity<?> addRegion(@RequestBody RegionRequest regionRequest) {
         String regionName = regionRequest.getName();
 
@@ -41,20 +41,21 @@ public class RegionController {
     }
 
     @GetMapping()
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllRegions(){
-        Optional<List<Region>> regions = regionService.getAllRegions();
-        if(regions.isPresent()){
+    @PreAuthorize("@customPermissionEvaluator.hasPermission(authentication, 'SUPER_ADMIN', 'REGION_READ_ALL')")
+    public ResponseEntity<?> getAllRegions() {
+        try {
+            List<Region> regions = regionService.getAllRegions();
             return ResponseEntity.ok().body(regions);
-        }else{
-            return ResponseEntity.badRequest().body("No regions found");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching regions: " + e.getMessage());
         }
     }
 
+
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN') || hasAuthority('REGION_ADMIN')")
+    @PreAuthorize("@customPermissionEvaluator.hasPermission(authentication,#id , 'REGION_READ')")
     public ResponseEntity<?> getRegionById(@PathVariable String id){
-        Optional<Region> regionOptional = regionService.getRegionById(id);
+        Optional<Region> regionOptional = regionService.getRegionByRegionId(id);
         if(regionOptional.isEmpty()){
             return ResponseEntity.badRequest().body("Region with id " + id + " not found.");
         }else{
@@ -65,19 +66,24 @@ public class RegionController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("@customPermissionEvaluator.hasPermission(authentication, 'SUPER_ADMIN', 'REGION_UPDATE')")
     public ResponseEntity<?> updateRegion(@PathVariable String id,@RequestBody RegionRequest regionRequest){
-        String name = regionRequest.getName();
-        Optional<Region> updatedRegion = regionService.updateRegion(id, name);
-        if(updatedRegion.isPresent()){
-            return ResponseEntity.ok().body(updatedRegion.get());
-        }else{
-            return ResponseEntity.badRequest().body("Region with id " + id + " not found.");
+        try{
+            String name = regionRequest.getName();
+            Optional<Region> updatedRegion = regionService.updateRegion(id, name);
+            if(updatedRegion.isPresent()){
+                return ResponseEntity.ok().body(updatedRegion.get());
+            }else{
+                return ResponseEntity.badRequest().body("Region with id " + id + " not found.");
+            }
+        }
+        catch (Exception e){
+            return ResponseEntity.badRequest().body("Error updating region: " + e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("@customPermissionEvaluator.hasPermission(authentication, 'SUPER_ADMIN', 'REGION_DELETE')")
     public ResponseEntity<?> deleteRegion(@PathVariable String id){
         try{
             regionService.deleteRegion(id);

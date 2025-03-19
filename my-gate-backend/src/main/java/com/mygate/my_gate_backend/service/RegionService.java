@@ -23,19 +23,17 @@ public class RegionService {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public Optional<List<Region>> getAllRegions() {
-        return Optional.of(regionRepository.findAll());
+    public List<Region> getAllRegions() {
+        return regionRepository.findAll();
     }
 
-    public Optional<Region> getRegionById(String id) {
-        return regionRepository.findById(id);
+    public Optional<Region> getRegionByRegionId(String regionId) {
+        return regionRepository.findByRegionId(regionId);
     }
 
     public Optional<Region> getRegionByName(String name) {
         return regionRepository.findByName(name);
     }
-
-    public Optional<Region> findByRegionID(String regionID) { return regionRepository.findByRegionId(regionID);}
 
     public Region createRegion(String regionName) {
         Region region = new Region();
@@ -63,7 +61,7 @@ public class RegionService {
     }
 
     public Optional<Region> updateRegion(String id, String name) {
-        Optional<Region> regionOptional = regionRepository.findById(id);
+        Optional<Region> regionOptional = regionRepository.findByRegionId(id);
         if (regionOptional.isEmpty()) {
             return Optional.empty();
         }
@@ -73,7 +71,7 @@ public class RegionService {
     }
 
     public void deleteRegion(String id) {
-        Optional<Region> regionOptional = regionRepository.findById(id);
+        Optional<Region> regionOptional = regionRepository.findByRegionId(id);
         if (regionOptional.isEmpty()) {
             throw new IllegalArgumentException("Region with id '" + id + "' does not exist.");
         }else{

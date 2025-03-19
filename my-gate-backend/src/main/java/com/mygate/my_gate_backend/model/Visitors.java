@@ -1,5 +1,6 @@
 package com.mygate.my_gate_backend.model;
 
+import com.mygate.my_gate_backend.model.enums.VisitorStatus;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,8 +20,8 @@ public class Visitors {
     private String mobile;
     private String vehicleNumber;
     private String purpose;
-    private String status;
-    private User approvedBy;
+    private VisitorStatus status = VisitorStatus.PENDING;
+    private String flatId;
 
     @CreatedDate
     @Field(targetType = FieldType.TIMESTAMP)

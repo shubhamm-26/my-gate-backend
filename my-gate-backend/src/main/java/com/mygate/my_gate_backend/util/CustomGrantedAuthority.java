@@ -5,12 +5,15 @@ import lombok.Getter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Set;
+
 @Getter
 @AllArgsConstructor
 @ToString
 public class CustomGrantedAuthority implements GrantedAuthority {
     private final String role;
     private final String referenceId;
+    private final Set<String> permissions;
 
     @Override
     public String getAuthority() {

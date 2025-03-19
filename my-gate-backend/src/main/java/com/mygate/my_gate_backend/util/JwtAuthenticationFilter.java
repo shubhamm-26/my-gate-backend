@@ -1,15 +1,12 @@
 package com.mygate.my_gate_backend.util;
 
-import com.mygate.my_gate_backend.model.UserRole;
-import com.mygate.my_gate_backend.model.enums.RolesEnum;
+import com.mygate.my_gate_backend.service.RolesService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,11 +23,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final RolesService rolesService;
 
     @Autowired
-    public JwtAuthenticationFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(UserDetailsService userDetailsService, JwtUtil jwtUtil, RolesService rolesService) {
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
+        this.rolesService = rolesService;
     }
 
     @Override
@@ -49,13 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                     List<CustomGrantedAuthority> authorities = rolesWithReferences.stream()
-                            .map(roleMap -> new CustomGrantedAuthority(roleMap.get("role"), roleMap.get("referenceId")))
+                            .map(roleMap -> new CustomGrantedAuthority(roleMap.get("role"), roleMap.get("referenceId"),rolesService.getPermissionsForRole(roleMap.get("role")).orElse(null)))
                             .toList();
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-
                 } catch (UsernameNotFoundException e) {
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
                     return;
@@ -65,4 +63,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }

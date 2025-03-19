@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +22,10 @@ public class UserService implements UserDetailsService {
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public Optional<User> getUserById(String userId) {
+        return userRepository.findById(userId);
     }
 
     public User addUser(User user) {
@@ -38,7 +43,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
         List<SimpleGrantedAuthority> authorities = user.getUserRolesSet().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRolesEnum().name()))
+                .map(role -> new SimpleGrantedAuthority(role.getRole()))
                 .collect(Collectors.toList());
 
         return new org.springframework.security.core.userdetails.User(
@@ -48,21 +53,21 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    public void addRole(String userId, UserRole userRole) {
-        String role = userRole.getRolesEnum().name();
+    public Optional<User> addRole(String userId, UserRole userRole) {
+        String role = userRole.getRole();
         String referenceId = userRole.getReferenceId();
         if (userId == null || role == null || referenceId == null) {
             throw new IllegalArgumentException("User ID and Role are required.");
         }
 
-        String[] ids = referenceId.split("_");
-        String regionId = ids[0];
-        String societyId = (ids.length > 1) ? ids[1] : null;
-        String flatId = (ids.length > 2) ? ids[2] : null;
-
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + userId));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
         user.getUserRolesSet().add(userRole);
         userRepository.save(user);
+        return Optional.of(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

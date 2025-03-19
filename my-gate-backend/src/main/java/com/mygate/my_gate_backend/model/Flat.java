@@ -2,13 +2,12 @@ package com.mygate.my_gate_backend.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.*;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class Flat {
@@ -19,11 +18,9 @@ public class Flat {
 
     private String flatId;
 
-    @DBRef
-    private User ownerId;
+    private String ownerId;
 
-    @DBRef
-    private List<User> residentsList;
+    private Set<String> residentsList;
 
     @CreatedDate
     @Field(targetType = FieldType.TIMESTAMP)
@@ -40,4 +37,5 @@ public class Flat {
 
     @CreatedBy
     private String createdBy;
+
 }

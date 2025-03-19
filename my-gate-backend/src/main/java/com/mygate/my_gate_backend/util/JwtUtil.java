@@ -20,10 +20,10 @@ public class JwtUtil {
 
     public String generateToken(String email, Set<UserRole> userRoleSet) {
         try {
-            List<Map<String, String>> rolesWithReferences = SecurityUtil.sortRoles(userRoleSet).stream()
+            List<Map<String, String>> rolesWithReferences =userRoleSet.stream()
                     .map(userRole -> {
                         Map<String, String> roleMap = new HashMap<>();
-                        roleMap.put("role", userRole.getRolesEnum().name());
+                        roleMap.put("role", userRole.getRole());
                         roleMap.put("referenceId", userRole.getReferenceId());
                         return roleMap;
                     })

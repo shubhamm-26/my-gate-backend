@@ -1,6 +1,5 @@
 package com.mygate.my_gate_backend.model;
 
-
 import lombok.Data;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,21 +8,14 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Data
-@Document(collection = "users")
-public class User {
+@Document(collection = "roles_permissions")
+public class RolesPermissions {
     @Id
     private String id;
-    private String name;
-    private String email;
-    private String phone;
-    private String password;
-    private Set<UserRole> userRolesSet;
+    private Set<String> permissions;
 
     @CreatedDate
     @Field(targetType = FieldType.TIMESTAMP)
@@ -40,5 +32,4 @@ public class User {
 
     @CreatedBy
     private String createdBy;
-
 }
