@@ -20,7 +20,6 @@ public class SocietyService {
     private final MongoTemplate mongoTemplate;
     private final RegionRepository regionRepository;
 
-    @Autowired
     public SocietyService(MongoTemplate mongoTemplate, RegionRepository regionRepository) {
         this.mongoTemplate = mongoTemplate;
         this.regionRepository = regionRepository;

@@ -17,7 +17,6 @@ public class RegionService {
     private final RegionRepository regionRepository;
     private final MongoTemplate mongoTemplate;
 
-    @Autowired
     public RegionService(RegionRepository regionRepository, MongoTemplate mongoTemplate) {
         this.regionRepository = regionRepository;
         this.mongoTemplate = mongoTemplate;

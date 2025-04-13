@@ -22,7 +22,6 @@ public class FlatController {
 
     private final FlatService flatService;
 
-    @Autowired
     public FlatController(FlatService flatService) {
         this.flatService = flatService;
     }

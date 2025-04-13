@@ -17,7 +17,6 @@ public class SocietyController {
 
     private final SocietyService societyService;
 
-    @Autowired
     public SocietyController(SocietyService societyService) {
         this.societyService = societyService;
     }

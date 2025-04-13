@@ -1,6 +1,5 @@
 package com.mygate.my_gate_backend.controller;
 
-
 import com.mygate.my_gate_backend.model.User;
 import com.mygate.my_gate_backend.model.UserRole;
 import com.mygate.my_gate_backend.service.UserService;

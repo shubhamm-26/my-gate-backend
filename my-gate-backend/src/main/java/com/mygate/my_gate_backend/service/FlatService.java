@@ -21,7 +21,6 @@ public class FlatService {
     private final SocietyService societyService;
     private final UserService userService;
 
-    @Autowired
     public FlatService(MongoTemplate mongoTemplate, RegionRepository regionRepository, SocietyService societyService, UserService userService) {
         this.mongoTemplate = mongoTemplate;
         this.regionRepository = regionRepository;
